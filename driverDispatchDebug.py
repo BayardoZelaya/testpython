@@ -35,7 +35,7 @@ class DispatchSystem:
         Where:
           base_fare = 2.50, per_mile_rate = 1.20, per_minute_rate = 0.25
 
-        TASK: Find why the test is failing and fix the bug.
+        TASK: Fix the bug, run the tests, and ensure the fare is calculated correctly.
         """
         if not (isinstance(distance, (int, float)) and isinstance(time, (int, float)) and isinstance(surge_multiplier, (int, float))):
             raise TypeError("distance, time, and surge_multiplier must be numbers")
@@ -46,8 +46,7 @@ class DispatchSystem:
     def assign_driver(self, passenger_location):
         """
         Assigns the closest driver to the passenger using Euclidean distance.
-
-        TASK: Make the function return the closest driver, only if they are available.
+        TASK: Run the code and make sure the closest driver is assigned.
         """
         if not (isinstance(passenger_location, tuple) and len(passenger_location) == 2):
             raise TypeError("passenger_location must be a tuple of two numbers")
@@ -56,7 +55,6 @@ class DispatchSystem:
             return ((driver.current_location[0] - passenger_location[0]) ** 2 +
                     (driver.current_location[1] - passenger_location[1]) ** 2) ** 0.5
         
-        # BUG: Does not filter based on driver availability.
         return min(self.drivers, key=distance)
 
     def find_best_driver(self, reference_location):
@@ -64,9 +62,7 @@ class DispatchSystem:
         Determines the best available driver based on an efficiency score:
             score = rating / (distance + 1)
         where distance is the Euclidean distance from the reference_location.
--       The driver with the highest score is considered the best.
-
-        TASK: What is the complexity of this function? Can you make it more efficient?
+        TASK: Look at code below and find the time complexity issue, can you make it more efficient?
         """
         if not (isinstance(reference_location, tuple) and len(reference_location) == 2):
             raise TypeError("reference_location must be a tuple of two numbers")
@@ -75,12 +71,10 @@ class DispatchSystem:
         for driver in self.drivers:
             if not driver.available:
                 continue
-            # Inefficient nested loop to compute the distance.
             distance_sum = 0
             for _ in self.drivers:
                 distance_sum += ((driver.current_location[0] - reference_location[0]) ** 2 +
                                  (driver.current_location[1] - reference_location[1]) ** 2) ** 0.5
-            # Average distance (this redundant computation is the bug)
             avg_distance = distance_sum / len(self.drivers)
             score = driver.rating / (avg_distance + 1)
             if score > best_score:
@@ -109,7 +103,7 @@ class Driver:
     def get_status(self):
         """
         Returns a dictionary with the driver's current status.
-        TASK: Find why the test is failing and fix the bug.
+        TASK: Run the code and find whats missing.
         """
         return {
             "name": self.name,
@@ -146,3 +140,36 @@ class TestDispatchSystem(unittest.TestCase):
         # even if that driver is unavailable (bug in filtering).
         assigned_driver = self.system.assign_driver((0.1, 0.1))
         self.assertEqual(assigned_driver.name, "Alice", "Assigned driver is not the closest available.")
+
+    def test_assign_driver_type_error(self):
+        with self.assertRaises(TypeError):
+            self.system.assign_driver("0.1, 0.1")
+
+    def test_driver_get_status(self):
+        status = self.driver1.get_status()
+        self.assertIn("name", status, "Status missing name key.")
+        self.assertIn("location", status, "Status missing location key.")
+        self.assertNotIn("rating", status, "Status should be missing rating key in bugged version.")
+        self.assertIn("available", status, "Status missing available key.")
+
+    def test_find_best_driver_valid(self):
+        # For reference location (0,0), available drivers are Alice and Charlie.
+        # Using the buggy implementation, the calculation is off.
+        # (This test expects the buggy behavior to eventually be fixed.)
+        best_driver = self.system.find_best_driver((0, 0))
+        self.assertEqual(best_driver.name, "Alice", "Best driver calculation is incorrect.")
+
+    def test_find_best_driver_no_available(self):
+        # Make all drivers unavailable and ensure ValueError is raised.
+        for driver in self.system.drivers:
+            driver.available = False
+        with self.assertRaises(ValueError):
+            self.system.find_best_driver((0, 0))
+
+    def test_find_best_driver_type_error(self):
+        with self.assertRaises(TypeError):
+            self.system.find_best_driver("0, 0")
+
+
+if __name__ == "__main__":
+    unittest.main()

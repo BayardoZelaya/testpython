@@ -16,7 +16,7 @@ public class RideSharingDebuggingExerciseBuggy {
         public double calculateFare(double distance, double time, double surgeMultiplier) {
             double baseFare = 2.50;
             double fare = baseFare + (distance * 1.20) + (time * 0.25);
-            
+
             return fare + surgeMultiplier;
         }
 
@@ -122,10 +122,9 @@ public class RideSharingDebuggingExerciseBuggy {
         // Test calculateFare:
         double expectedFare = (2.50 + (10 * 1.20) + (15 * 0.25)) * 1.5;
         DispatchSystem ds = new DispatchSystem(Arrays.asList(
-            new Driver("Alice", new double[]{0, 0}, 4.8, true),
-            new Driver("Bob", new double[]{3, 4}, 4.5, false),
-            new Driver("Charlie", new double[]{1, 1}, 4.9, true)
-        ));
+                new Driver("Alice", new double[] { 0, 0 }, 4.8, true),
+                new Driver("Bob", new double[] { 3, 4 }, 4.5, false),
+                new Driver("Charlie", new double[] { 1, 1 }, 4.9, true)));
         double fare = ds.calculateFare(10, 15, 1.5);
         if (Math.abs(fare - expectedFare) > 0.001) {
             System.out.println("calculateFare failed: expected " + expectedFare + ", got " + fare);
@@ -133,7 +132,7 @@ public class RideSharingDebuggingExerciseBuggy {
         }
 
         // Test assignDriver:
-        Driver assigned = ds.assignDriver(new double[]{0.1, 0.1});
+        Driver assigned = ds.assignDriver(new double[] { 0.1, 0.1 });
         if (!assigned.getName().equals("Alice")) {
             System.out.println("assignDriver failed: expected Alice, got " + assigned.getName());
             allPassed = false;
@@ -147,7 +146,7 @@ public class RideSharingDebuggingExerciseBuggy {
         }
 
         // Test findBestDriver:
-        Driver best = ds.findBestDriver(new double[]{0, 0});
+        Driver best = ds.findBestDriver(new double[] { 0, 0 });
         if (!best.getName().equals("Alice")) {
             System.out.println("findBestDriver failed: expected Alice, got " + best.getName());
             allPassed = false;
