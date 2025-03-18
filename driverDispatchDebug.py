@@ -12,13 +12,6 @@ The tasks include:
   - Assigning the closest driver to a passenger.
   - Reporting accurate driver statuses.
   - Determining the "best" available driver based on an efficiency score.
-  
-Each function contains an intentional bug or inefficiency:
-  1. In calculate_fare, the surge multiplier is added instead of being multiplied.
-  2. In assign_driver, drivers that are not available are not filtered out.
-  3. In Driver.get_status, the driver's rating is missing.
-  4. In find_best_driver, an unnecessary nested loop is used to calculate the distance,
-     resulting in O(n²) performance.
 """
 
 class DispatchSystem:
